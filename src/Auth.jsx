@@ -40,7 +40,7 @@ export default function Auth({ onLogin, initialView = "login" }) {
   useEffect(() => {
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
+    } = supabase.auth.onAuthStateChange(async (event) => {
       if (event === "PASSWORD_RECOVERY") {
         setView("update");
       }
@@ -128,8 +128,8 @@ export default function Auth({ onLogin, initialView = "login" }) {
     setMessage(null);
 
     try {
-      const { data, error } = await supabase.auth.updateUser({
-        password: password,
+      const { error } = await supabase.auth.updateUser({
+        password,
       });
       if (error) throw error;
 

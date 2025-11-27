@@ -47,6 +47,8 @@ const supabase = createClient(
   import.meta.env.VITE_SUPABASE_ANON_KEY
 );
 
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
+
 // --- STATUS CODE TEXT MAPPING ---
 const STATUS_TEXT = {
   200: "OK",
@@ -96,7 +98,7 @@ const isJsonData = (data) => {
   try {
     JSON.parse(data);
     return true;
-  } catch (e) {
+  } catch {
     return false;
   }
 };
@@ -199,7 +201,7 @@ function App() {
   const fetchHistory = async () => {
     if (!user) return;
     try {
-      const res = await axios.get("http://localhost:5000/api/history", {
+      const res = await axios.get(`${BACKEND_URL}/api/history`, {
         headers: { "user-id": user.id },
       });
       setHistoryItems(
@@ -220,7 +222,7 @@ function App() {
     e.stopPropagation();
     if (!user) return;
     try {
-      await axios.delete(`http://localhost:5000/api/history/${id}`, {
+      await axios.delete(`${BACKEND_URL}/api/history/${id}`, {
         headers: { "user-id": user.id },
       });
       setHistoryItems((prev) => prev.filter((item) => item.id !== id));
@@ -233,7 +235,7 @@ function App() {
     if (!user) return;
     if (!confirm("Are you sure you want to clear all history?")) return;
     try {
-      await axios.delete("http://localhost:5000/api/history", {
+      await axios.delete(`${BACKEND_URL}/api/history`, {
         headers: { "user-id": user.id },
       });
       setHistoryItems([]);
@@ -245,7 +247,7 @@ function App() {
   const fetchCollections = async () => {
     if (!user) return;
     try {
-      const res = await axios.get("http://localhost:5000/api/collections", {
+      const res = await axios.get(`${BACKEND_URL}/api/collections`, {
         headers: { "user-id": user.id },
       });
       setCollections(res.data);
@@ -375,7 +377,7 @@ function App() {
 
       try {
         new URL(finalUrl);
-      } catch (_) {
+      } catch {
         throw new Error("Malformed URL");
       }
 
@@ -391,12 +393,12 @@ function App() {
           const rawBody = await interpolate(body);
           finalBody = JSON.parse(rawBody);
         }
-      } catch (e) {
+      } catch {
         throw new Error("Invalid JSON Body");
       }
 
       const res = await axios.post(
-        "http://localhost:5000/api/proxy",
+        `${BACKEND_URL}/api/proxy`,
         {
           url: finalUrl,
           method,
@@ -502,7 +504,7 @@ function App() {
 
   const createCollection = async () => {
     if (!newCollectionName.trim() || !user) return;
-    await axios.post("http://localhost:5000/api/collections", {
+    await axios.post(`${BACKEND_URL}/api/collections`, {
       name: newCollectionName,
       user_id: user.id,
     });
@@ -513,7 +515,7 @@ function App() {
 
   const handleSave = async () => {
     if (!saveModal.name || !saveModal.colId || !user) return;
-    await axios.post("http://localhost:5000/api/collection-items", {
+    await axios.post(`${BACKEND_URL}/api/collection-items`, {
       collection_id: saveModal.colId,
       name: saveModal.name,
       url,
